@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>{% block title %}{% endblock %}</title>
+	<script src="{{ STATIC_URL }}js/jquery-1.7.1.min.js"></script>
+	<script src="{{ STATIC_URL }}js/jquery-ui-1.8.18.custom.min.js"></script>
+	<script src="{{ STATIC_URL }}js/jquery.ui.timepicker.js"></script>
+	<script src="{{ STATIC_URL }}js/jquery.jqplot.min.js"></script>
+	<script src="{{ STATIC_URL }}js/jqplot-plugins/jqplot.dateAxisRenderer.min.js"></script>
+	<script src="{{ STATIC_URL }}js/csrf.js"></script>
+	<link href="{{ STATIC_URL }}css/ui-lightness/jquery-ui-1.8.18.custom.css" rel="Stylesheet" type="text/css" />
+	<link href="{{ STATIC_URL }}css/jquery.ui.timepicker.css" />
+	<style type="text/css">
+		body {
+			font-family: Arial, Helvetica, sans-serif;
+		}
+		#divHeaderLeft {
+			text-align: left; 
+			display: inline-table;
+		}
+		#divUser {
+			text-align: right;
+			display: inline-table;
+			float: right;
+		}
+		table tbody th {
+			text-align: right;
+			font-weight: normal;
+		}
+		h1 {
+			margin-top: 0;
+		}
+		h1 a {
+			color: #000000;
+			text-decoration: none;
+		}
+		h1 a:hover {
+			text-decoration: underline;
+		}
+		h2 {
+			margin-top: 0;
+		}
+	</style>
+	{% block head %}{% endblock %}
+</head>
+<body>
+	<div id="divHeader">
+		<div id="divHeaderLeft">
+		<h1><a href="/BillMinder/">BillMinder</a></h1>
+		</div>
+		{% if not user.is_anonymous %}
+		<div id="divUser">{{user.username}} | <a href="/BillMinder/logout/">Log out</a></div>
+		{% endif %}
+	</div>
+	<div id="divContent">
+		{% block content %}{% endblock %}
+	</div>
+</body>
+</html>

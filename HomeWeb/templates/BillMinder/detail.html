@@ -1,0 +1,119 @@
+{% extends "BillMinder/base.html" %}
+{% block title %}Detail{% endblock %}
+{% block head %}
+	<script type="text/javascript" language="javascript">
+		$(document).ready(function(){
+			drawGraph();
+			$("#txtPaymentDate").datetimepicker();
+		});
+		
+		function drawGraph() {
+			$.get("/BillMinder/{{bill.id}}/history/", function(data) {
+				var line = new Array();
+				var ticks = new Array();
+				if(data.length > 1) {
+					var lineData;
+					for(count in data) {
+						lineData = new Array();
+						lineData.push(data[count].fields.payment_date);
+						ticks.push(data[count].fields.payment_date);
+						lineData.push(data[count].fields.payment_amount * 1)
+						line.push(lineData);
+					}
+				  	var plot1 = $.jqplot('divGraph', [line], {
+			    		title:'Payment History',
+	
+	    		        axes: {
+				            xaxis: {
+				                renderer: $.jqplot.DateAxisRenderer,
+				                ticks: ticks/*,
+								tickOptions: {
+								          angle: "50",
+								          fontSize: '20pt'
+								        }*/
+				            }
+				        },
+			    		series:[{lineWidth:4, markerOptions:{style:'square'}}]
+			  		});
+		  		}
+			});
+		}
+		
+		function showPayment() {
+			var now = new Date();
+			document.getElementById("txtPaymentDate").value = ("0" + (now.getMonth() + 1)).slice(-2) + "/" +
+				("0" + now.getDate()).slice(-2) + "/" + now.getFullYear() + " " + 
+				("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2); 
+			$('#divAddEntry').show(100, function() {
+				document.getElementById("txtPaymentAmount").select();
+				document.getElementById("txtPaymentAmount").focus();
+  			});
+		}
+		
+		function makePayment() {
+			$.post("/BillMinder/{{bill.id}}/pay/", {
+				payment_date: document.getElementById("txtPaymentDate").value,
+				amount: document.getElementById("txtPaymentAmount").value,
+    			reminder_days: document.getElementById("txtReminderDays").value,
+    			confirmation_number: document.getElementById("txtConfirmationNumber").value,
+    			notes: document.getElementById("txtNotes").value
+			},
+		    function(data) {
+				$('#divAddEntry').hide(250, function() {
+        			document.getElementById("txtConfirmationNumber").value = "";
+        			document.getElementById("txtNotes").value = "";					
+  				});
+  				drawGraph();
+			}).error(function(jqXHR, status, error) { alert(error); });
+		}
+	</script>
+{% endblock %}
+{% block content %}
+	{% csrf_token %}
+	<h2>{{bill.name}}</h2>
+	<a href="javascript:void(0)" onclick="showPayment()">Make Payment</a>
+	<div id="divTest"></div>
+	<div id="divAddEntry" style="display: none">
+		<table>
+			<tbody>
+				<tr>
+					<th>
+						Payment Date
+					</th>
+					<td>
+						<input type="text" id="txtPaymentDate" />
+					</td>
+				</tr>
+				<tr>
+					<th>Payment Amount</th>
+					<td><input type="text" id="txtPaymentAmount" value="{{bill.default_amount}}" /></td>
+				</tr>
+				<tr>
+					<th>Confirmation Number</th>
+					<td><input type="text" id="txtConfirmationNumber" /></td>
+				</tr>
+				<tr>
+					<th>Notes</th>
+					<td><input type="text" id="txtNotes" style="width: 400px" /></td>
+				</tr>
+				<tr>
+					<th><label for="txtReminderDays">Remind me again in</label></th>
+					<td>
+						<input id="txtReminderDays" style="width: 40px" value="{{bill.default_reminder_days}}" />
+						<label for="txtReminderDays">days</label>
+					</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td><input type="button" onclick="makePayment()" value="Submit" /></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div id="divGraph">
+		<!-- jqPlot graph goes here -->
+	</div>
+	<div id="divRecentPayments">
+		<!-- list of last 12(?) payments goes here, option to show all -->
+	</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "BillMinder/base.html" %}
+{% block title %}BillMinder{% endblock %}
+{% block head %}
+	<style type="text/css" rel="stylesheet">
+		.bill {
+			background-color: #eeeeee;
+			padding: 6px;
+			margin-bottom: 8px;
+			border: solid 3px transparent;
+			border-radius: 3px;
+		}
+		.bill:hover {
+			border: solid 3px #cccccc;
+			border-radius: 3px;
+			cursor: pointer;
+		}
+		.bill:hover span {
+			text-decoration: underline;
+		}
+	</style>
+	<script language="javascript" type="text/javascript">
+		function gotoDetail(billID) {
+			window.location = "" + billID;
+		}
+	</script>
+{% endblock %}
+{% block content %}
+	{% if bills %}
+	<div id="divAllbills">
+	{% for b in bills %}
+		<div class="bill" onclick="gotoDetail({{b.id}})">
+			<span>
+				{% if b.health_color == 'green' %}
+				<img alt="status" src="/static/img/green-ball.gif" />
+				{% else %}{% if b.health_color == 'yellow' %}
+				<img alt="status" src="/static/img/yellow-ball.gif" />
+				{% else %}
+				<img alt="status" src="/static/img/red-ball.gif" />
+				{% endif %}{% endif %}
+				{{b.name}}
+				{% if b.last_payment_date %}
+					{% if b.days_since_payment == 1 %}
+					<span style="color: #666666; margin-left: 5pt">(last paid {{b.days_since_payment}} day ago)</span>
+					{% else %}
+					<span style="color: #666666; margin-left: 5pt">(last paid {{b.days_since_payment}} days ago)</span>
+					{% endif %}
+				{% endif %}
+			</span>
+			
+		</div>	
+	{% endfor %}
+	</div>
+	{% endif %}
+{% endblock %}

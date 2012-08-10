@@ -1,0 +1,7 @@
+*settings*.py
+*.pyc
+*.svn
+media/photos/*
+*.log
+.DS_Store
+*.pot

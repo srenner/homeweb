@@ -1,0 +1,18 @@
+{% extends "BillMinder/base.html" %}
+{% block title %}Alerts{% endblock %}
+{% block head %}
+	<script type="text/javascript" language="javascript">
+		$(document).ready(function(){
+			$.get("/BillMinder/alerts", function(data) {
+				
+		  		debugger;
+			});
+		});
+		
+
+	</script>
+{% endblock %}
+{% block content %}
+	{% csrf_token %}
+
+{% endblock %}
