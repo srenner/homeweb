@@ -4,50 +4,116 @@
 	<style type="text/css" rel="stylesheet">
 		.bill {
 			background-color: #eeeeee;
-			padding: 6px;
-			margin-bottom: 8px;
-			border: solid 3px transparent;
+			padding: 8px;
+			margin: 10px;
+			border: solid 3px #d7d7d7;
 			border-radius: 3px;
+			display: inline-table;
+		}
+		.danger {
+			border: solid 3px red;
+			border-radius: 3px;			
 		}
 		.bill:hover {
-			border: solid 3px #cccccc;
-			border-radius: 3px;
-			cursor: pointer;
+			/*border: solid 3px #003F87;
+			border-radius: 3px;*/
 		}
-		.bill:hover span {
-			text-decoration: underline;
+		.subBill {
+			color: #666666; 
+			padding-left: 19px;
+			background-color; yellow;
+		}
+		a {
+			text-decoration: none;
+			color: #003F87;
+		}
+		a:hover {
+			color: #0276FD;
+		}
+		.title {
+			font-size: 16pt;
+		}
+		#divHeaderRow {
+			border-bottom: solid 4px #AAAAAA;
+			margin-bottom: 10px;
+			padding-bottom: 10px;
+			display: none;
+		}
+		img {
+			border: 0;
+		}
+		canvas {
+			margin-top: 8px;
 		}
 	</style>
-	<script language="javascript" type="text/javascript">
-		function gotoDetail(billID) {
-			window.location = "" + billID;
-		}
+	<script>
+		$(document).ready(function() {
+			{% for b in bills %}
+				getRecentHistory({{b.id}});
+			{% endfor %}
+		});
+	
+	
+	
+		var getRecentHistory = function(id) {
+			
+			var chartContext;
+			var chartData = {
+				labels: [],
+				datasets: [{
+					fillColor : "rgba(0, 158, 0, 0.5)",
+					strokeColor : "rgba(64, 255, 128, 0.5)",
+					pointColor : "rgba(0, 64, 0, 0.8)",
+					pointStrokeColor : "#fff",
+					data: []
+				}]
+			};
+			var billChart;
+			$.get("/BillMinder/" + id + "/history/?count=3", function(data) {
+				if(data.length > 1) {
+					for(var x = 0; x < data.length; x++) {
+						chartData.labels.push('');
+						chartData.datasets[0].data.push(+data[x].fields.payment_amount);
+					}
+					chartContext = document.getElementById("chart_" + id).getContext("2d");
+					billChart = new Chart(chartContext).Line(chartData);
+		  		}
+			});
+
+		};
+
 	</script>
 {% endblock %}
 {% block content %}
 	{% if bills %}
+	<div id="divHeaderRow">
+		<div class="bill"><a href="Reports/"><img alt="Reports" src="/static/img/chart.png" style="margin-right: 2px" /><span class="title">Reports</span></a></div>
+	</div>
 	<div id="divAllbills">
+		
 	{% for b in bills %}
-		<div class="bill" onclick="gotoDetail({{b.id}})">
-			<span>
-				{% if b.health_color == 'green' %}
+		<a href="{{b.id}}/">
+			<div class="bill">
+	
+				{% if b.health > .5 %}
 				<img alt="status" src="/static/img/green-ball.gif" />
-				{% else %}{% if b.health_color == 'yellow' %}
+				{% else %}{% if b.health > 0 %}
 				<img alt="status" src="/static/img/yellow-ball.gif" />
 				{% else %}
 				<img alt="status" src="/static/img/red-ball.gif" />
 				{% endif %}{% endif %}
-				{{b.name}}
+				<span class="title">{{b.name}}</span>
 				{% if b.last_payment_date %}
 					{% if b.days_since_payment == 1 %}
-					<span style="color: #666666; margin-left: 5pt">(last paid {{b.days_since_payment}} day ago)</span>
+					<div class="subBill">(last paid {{b.days_since_payment}} day ago)</div>
 					{% else %}
-					<span style="color: #666666; margin-left: 5pt">(last paid {{b.days_since_payment}} days ago)</span>
+					<div class="subBill">(last paid {{b.days_since_payment}} days ago)</div>
 					{% endif %}
 				{% endif %}
-			</span>
-			
-		</div>	
+				<canvas id="chart_{{b.id}}" width="250px" height="175px"></canvas>
+				
+			</div>
+		</a>	
 	{% endfor %}
 	</div>
 	{% endif %}

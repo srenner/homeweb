@@ -5,8 +5,7 @@
 	<script src="{{ STATIC_URL }}js/jquery-1.7.1.min.js"></script>
 	<script src="{{ STATIC_URL }}js/jquery-ui-1.8.18.custom.min.js"></script>
 	<script src="{{ STATIC_URL }}js/jquery.ui.timepicker.js"></script>
-	<script src="{{ STATIC_URL }}js/jquery.jqplot.min.js"></script>
-	<script src="{{ STATIC_URL }}js/jqplot-plugins/jqplot.dateAxisRenderer.min.js"></script>
+	<script src="{{ STATIC_URL }}js/Chart.js"></script>
 	<script src="{{ STATIC_URL }}js/csrf.js"></script>
 	<link href="{{ STATIC_URL }}css/ui-lightness/jquery-ui-1.8.18.custom.css" rel="Stylesheet" type="text/css" />
 	<link href="{{ STATIC_URL }}css/jquery.ui.timepicker.css" />
@@ -41,6 +40,14 @@
 			margin-top: 0;
 		}
 	</style>
+	<script>
+		var formatDate = function(unformatted) {
+			var dateObj = new Date(unformatted);
+			return ("0" + (dateObj.getMonth() + 1)).slice(-2) + " - " + 
+				("0" + dateObj.getDate()).slice(-2) + " - " + 
+				dateObj.getFullYear();
+		};
+	</script>
 	{% block head %}{% endblock %}
 </head>
 <body>

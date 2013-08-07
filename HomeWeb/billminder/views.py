@@ -6,7 +6,13 @@ from django.template.context import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import logout_then_login
 #import datetime
-from django.utils import simplejson
+#from django.utils import simplejson
+## Django 1.5+ compat
+try:
+    import json
+except ImportError:
+    from django.utils import simplejson as json
+
 from django.db import connection
 import datetime
 from django.db import backend
@@ -22,7 +28,7 @@ def index(request):
     if request.is_ajax() or force_json:
         mimetype = "application/json"
         outputFormat = "json"
-        data = serializers.serialize(outputFormat, bills, extras=('health','health_color','days_since_payment'))
+        data = serializers.serialize(outputFormat, bills, extras=('health','days_since_payment'))
         return HttpResponse(data, mimetype)
     else:
         return render_to_response("BillMinder/index.html", {'bills': bills}, context_instance=RequestContext(request))
@@ -31,16 +37,14 @@ def index(request):
 @login_required
 def detail(request, bill_id):
     bill = get_object_or_404(Bill, pk=bill_id)
-
+    pass
     if request.is_ajax():
         mimetype = "application/json"
         outputFormat = "json"
         data = serializers.serialize(outputFormat, [bill])
         return HttpResponse(data, mimetype)
     else:
-        
         return render_to_response("BillMinder/detail.html", {'bill': bill}, context_instance=RequestContext(request))
-        #return HttpResponse("not implemented")
         
 def logout_view(request):
     return logout_then_login(request)
@@ -70,7 +74,9 @@ def make_payment(request, bill_id):
 @login_required
 def get_payments(request, bill_id):
     if 'count' in request.GET:
-        payments = list(BillPayment.objects.filter(bill=bill_id).order_by('payment_date')[:request.GET['count']])
+        #clumsy reverse ordering + reverse() call because Django does not support python's negative indexing
+        payments = list(BillPayment.objects.filter(bill=bill_id).order_by('-payment_date')[0:request.GET['count']])
+        payments.reverse()
     else:
         payments = list(BillPayment.objects.filter(bill=bill_id).order_by('payment_date'))
     mimetype = "application/json"

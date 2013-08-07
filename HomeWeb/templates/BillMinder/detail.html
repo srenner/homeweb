@@ -1,43 +1,47 @@
 {% extends "BillMinder/base.html" %}
 {% block title %}Detail{% endblock %}
 {% block head %}
-	<script type="text/javascript" language="javascript">
+	<style type="text/css">
+		#billChart {
+			width: 800px;
+			height: 400px;
+		}
+	</style>
+	<script type="text/javascript">
 		$(document).ready(function(){
 			drawGraph();
 			$("#txtPaymentDate").datetimepicker();
 		});
-		
-		function drawGraph() {
+		var formatDate = function(unformatted) {
+			var dateObj = new Date(unformatted);
+			return ("0" + (dateObj.getMonth() + 1)).slice(-2) + " - " + 
+				("0" + dateObj.getDate()).slice(-2) + " - " + 
+				dateObj.getFullYear();
+		};
+		var drawGraph = function() {
+			var chartContext;
+			var chartData = {
+				labels: [],
+				datasets: [{
+					fillColor : "rgba(0, 158, 0, 0.5)",
+					strokeColor : "rgba(64, 255, 128, 0.5)",
+					pointColor : "rgba(0, 64, 0, 0.8)",
+					pointStrokeColor : "#fff",
+					data: []
+				}]
+			};
+			var billChart;
 			$.get("/BillMinder/{{bill.id}}/history/", function(data) {
-				var line = new Array();
-				var ticks = new Array();
 				if(data.length > 1) {
-					var lineData;
-					for(count in data) {
-						lineData = new Array();
-						lineData.push(data[count].fields.payment_date);
-						ticks.push(data[count].fields.payment_date);
-						lineData.push(data[count].fields.payment_amount * 1)
-						line.push(lineData);
+					for(var x = 0; x < data.length; x++) {
+						chartData.labels.push(formatDate(data[x].fields.payment_date));
+						chartData.datasets[0].data.push(+data[x].fields.payment_amount);
 					}
-				  	var plot1 = $.jqplot('divGraph', [line], {
-			    		title:'Payment History',
-	
-	    		        axes: {
-				            xaxis: {
-				                renderer: $.jqplot.DateAxisRenderer,
-				                ticks: ticks/*,
-								tickOptions: {
-								          angle: "50",
-								          fontSize: '20pt'
-								        }*/
-				            }
-				        },
-			    		series:[{lineWidth:4, markerOptions:{style:'square'}}]
-			  		});
+					chartContext = document.getElementById("billChart").getContext("2d");
+					billChart = new Chart(chartContext).Line(chartData);
 		  		}
 			});
-		}
+		};
 		
 		function showPayment() {
 			var now = new Date();
@@ -110,6 +114,9 @@
 			</tbody>
 		</table>
 	</div>
+	
+	<canvas id="billChart" width="900px" height="400px"></canvas>
+	
 	<div id="divGraph">
 		<!-- jqPlot graph goes here -->
 	</div>
