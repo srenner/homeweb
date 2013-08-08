@@ -20,7 +20,7 @@ from django.db.models.aggregates import Max
 
 @login_required
 def index(request):
-    bills = Bill.objects.all()
+    bills = Bill.objects.filter(is_active=True)
     force_json = False
     if 'format' in request.GET:
         if request.GET['format'].lower() == 'json':
