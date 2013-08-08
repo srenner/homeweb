@@ -1,0 +1,21 @@
+#billChart {
+	width: 800px;
+	height: 400px;
+}
+#divAddEntry {
+	margin-top: 10px;
+}
+#divRecentPayments {
+	margin-top: 10px;
+	padding-left: 20px;
+}
+#divRecentPayments table {
+	
+}
+#divRecentPayments table tbody tr:hover {
+	background-color: #D7D7D7;
+}
+#divRecentPayments table thead th {
+	text-align: left;
+	padding-right: 15px;
+}
