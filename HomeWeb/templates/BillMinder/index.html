@@ -14,14 +14,9 @@
 			border: solid 3px red;
 			border-radius: 3px;			
 		}
-		.bill:hover {
-			/*border: solid 3px #003F87;
-			border-radius: 3px;*/
-		}
 		.subBill {
 			color: #666666; 
 			padding-left: 19px;
-			background-color; yellow;
 		}
 		a {
 			text-decoration: none;
@@ -53,10 +48,7 @@
 			{% endfor %}
 		});
 	
-	
-	
 		var getRecentHistory = function(id) {
-			
 			var chartContext;
 			var chartData = {
 				labels: [],
@@ -79,9 +71,7 @@
 					billChart = new Chart(chartContext).Line(chartData);
 		  		}
 			});
-
 		};
-
 	</script>
 {% endblock %}
 {% block content %}
