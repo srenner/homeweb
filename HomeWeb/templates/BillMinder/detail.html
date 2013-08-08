@@ -9,10 +9,24 @@
 		#divAddEntry {
 			margin-top: 10px;
 		}
+		#divRecentPayments {
+			margin-top: 10px;
+			padding-left: 20px;
+		}
+		#divRecentPayments table {
+			
+		}
+		#divRecentPayments table tbody tr:hover {
+			background-color: #D7D7D7;
+		}
+		#divRecentPayments table thead th {
+			text-align: left;
+			padding-right: 15px;
+		}
 	</style>
 	<script type="text/javascript">
 		$(document).ready(function(){
-			drawGraph();
+			getHistory();
 			$("#txtPaymentDate").datetimepicker();
 		});
 		var formatDate = function(unformatted) {
@@ -21,7 +35,16 @@
 				("0" + dateObj.getDate()).slice(-2) + " - " + 
 				dateObj.getFullYear();
 		};
-		var drawGraph = function() {
+		
+		var getHistory = function() {
+			$.get("/BillMinder/{{bill.id}}/history/", function(data) {
+				drawGraph(data);
+				drawTable(data);
+			});
+			
+		};
+		
+		var drawGraph = function(data) {
 			var chartContext;
 			var chartData = {
 				labels: [],
@@ -34,16 +57,55 @@
 				}]
 			};
 			var billChart;
-			$.get("/BillMinder/{{bill.id}}/history/", function(data) {
-				if(data.length > 1) {
-					for(var x = 0; x < data.length; x++) {
-						chartData.labels.push(formatDate(data[x].fields.payment_date));
-						chartData.datasets[0].data.push(+data[x].fields.payment_amount);
-					}
-					chartContext = document.getElementById("billChart").getContext("2d");
-					billChart = new Chart(chartContext).Line(chartData);
-		  		}
-			});
+			if(data.length > 1) {
+				for(var x = 0; x < data.length; x++) {
+					chartData.labels.push(formatDate(data[x].fields.payment_date));
+					chartData.datasets[0].data.push(+data[x].fields.payment_amount);
+				}
+				chartContext = document.getElementById("billChart").getContext("2d");
+				billChart = new Chart(chartContext).Line(chartData);
+	  		}
+		};
+		
+		var drawTable = function(data) {
+			// TODO: create or apply table creation tool
+			var container = document.getElementById("divRecentPayments");
+			container.innerHTML = "";
+			var tbl = document.createElement("table");
+			var thead = document.createElement("thead");
+			var trHead = document.createElement("tr");
+			var thDate = document.createElement("th");
+			thDate.innerHTML = "Payment Date";
+			trHead.appendChild(thDate);
+			var thAmount = document.createElement("th");
+			thAmount.innerHTML = "Payment Amount";
+			trHead.appendChild(thAmount);
+			var thNotes = document.createElement("th");
+			thNotes.innerHTML = "Notes";
+			trHead.appendChild(thNotes);
+			thead.appendChild(trHead);
+			tbl.appendChild(thead);
+			var tbody = document.createElement("tbody");
+			var recordCount = data.length;
+			var tr;
+			var tdDate;
+			var tdAmount;
+			var tdNotes;
+			for(var i = 0; i < recordCount; i++) {
+				tr = document.createElement("tr");
+				tdDate = document.createElement("td");
+				tdDate.innerHTML = formatDate(data[i].fields.payment_date);
+				tr.appendChild(tdDate);
+				tdAmount = document.createElement("td");
+				tdAmount.innerHTML = "$" + data[i].fields.payment_amount;
+				tr.appendChild(tdAmount);
+				tdNotes = document.createElement("td");
+				tdNotes.innerHTML = data[i].fields.notes;
+				tr.appendChild(tdNotes);
+				tbody.appendChild(tr);
+			}
+			tbl.appendChild(tbody);
+			container.appendChild(tbl);						
 		};
 		
 		function showPayment() {
@@ -78,7 +140,7 @@
 {% block content %}
 	{% csrf_token %}
 	<h2>{{bill.name}}</h2>
-	<input type="button" onclick="showPayment()" value="Make Payment" />
+	<input type="button" onclick="showPayment()" value="Show Payment Form" />
 	<div id="divTest"></div>
 	<div id="divAddEntry" style="display: none">
 		<table>
