@@ -6,6 +6,9 @@
 			width: 800px;
 			height: 400px;
 		}
+		#divAddEntry {
+			margin-top: 10px;
+		}
 	</style>
 	<script type="text/javascript">
 		$(document).ready(function(){
@@ -75,7 +78,7 @@
 {% block content %}
 	{% csrf_token %}
 	<h2>{{bill.name}}</h2>
-	<a href="javascript:void(0)" onclick="showPayment()">Make Payment</a>
+	<input type="button" onclick="showPayment()" value="Make Payment" />
 	<div id="divTest"></div>
 	<div id="divAddEntry" style="display: none">
 		<table>
